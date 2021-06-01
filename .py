@@ -3,6 +3,7 @@ from matplotlib import pyplot
 from matplotlib import rcParams
 import regex
 import csv
+import sys
 
 with open("yuja.csv", "r", encoding="cp850") as f:
     s = csv.DictReader(f, delimiter=",", quotechar='"')
@@ -10,7 +11,7 @@ with open("yuja.csv", "r", encoding="cp850") as f:
     dates, dates_flt, dates_ids = [], [], []
     o = input("Enter a program ID: ")
 
-    if o == "0":
+    if o == "dateplot":
         for r in s:
             try:
                 m = regex.search("GMT(\\d{8}-\\d{6})", r["name"])
@@ -26,26 +27,26 @@ with open("yuja.csv", "r", encoding="cp850") as f:
                 dates_ids.append(i)
                 dates_flt.append(d)
 
-        p = pyplot.plot_date(dates_flt, dates_ids, "b-")
+        p = pyplot.plot_date(dates_flt, dates_ids, "-")
         pyplot.ticklabel_format(axis="y", style="plain")
         pyplot.xticks(rotation=90)
         p[0].figure.tight_layout()
         pyplot.show()
 
-    elif o == "1":
+    elif o == "diffplot":
         ids = sorted([int(r["id"]) for r in s])
         p = pyplot.plot(ids[1:], [b - a for a, b in zip(ids, ids[1:])])
         pyplot.ticklabel_format(style="plain")
         p[0].figure.tight_layout()
         pyplot.show()
 
-    elif o == "2":
+    elif o == "hist":
         ids = sorted([int(r["id"]) for r in s])
         p = pyplot.hist(ids, 200)
         pyplot.ticklabel_format(style="plain")
         pyplot.show()
 
-    elif o == "3":
+    elif o == "dateprop":
         ids = sorted([int(r["id"]) for r in s])
         props = [i / (v - ids[0]) for i, v in enumerate(ids[10:], 10)]
         p = pyplot.plot(ids[10:], props)
@@ -53,10 +54,20 @@ with open("yuja.csv", "r", encoding="cp850") as f:
         p[0].figure.tight_layout()
         pyplot.show()
 
-    elif o == "3.5":
+    elif o == "dateprop-rev":
         ids = sorted([int(r["id"]) for r in s], reverse=True)
         props = [i / (ids[0] - v) for i, v in enumerate(ids[10:], 10)]
         p = pyplot.plot(ids[10:], props)
         pyplot.ticklabel_format(axis="x", style="plain")
         p[0].figure.tight_layout()
         pyplot.show()
+
+    elif o == "bounds":
+        mn, mx = sys.maxsize, 0
+        for r in s:
+            i = int(r["id"])
+            if mn > i:
+                mn = i
+            if mx < i:
+                mx = i
+        print(mn, mx)
