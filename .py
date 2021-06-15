@@ -11,7 +11,7 @@ g = (str(l) for i, s in enumerate(f) for j, l in enumerate(s) if j > 0 or i == 0
 s = csv.DictReader(g, delimiter=",", quotechar='"')
 
 dates, dates_flt, dates_ids = [], [], []
-o = input("Enter a program ID: ")
+o = sys.argv[1] if len(sys.argv) > 1 else input("Enter a program ID: ")
 rcParams["toolbar"] = "None"
 
 if o == "dateplot":
@@ -73,7 +73,8 @@ elif o == "bounds":
             mn = i
         if mx < i:
             mx = i
-    print(mn, mx)
+    print(mn)
+    print(mx)
 
 for s in f:
     del s
