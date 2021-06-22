@@ -1,0 +1,23 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Scrape Test",
+			"type": "python",
+			"request": "launch",
+			"program": ".py",
+			"args": [
+				"-incr",
+				"-1",
+				"-ss",
+				"730335",
+				"-t",
+				"69"
+			],
+			"console": "integratedTerminal"
+		}
+	]
+}
