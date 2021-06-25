@@ -76,5 +76,11 @@ elif o == "bounds":
     print(mn)
     print(mx)
 
+elif o == "count":
+    c = 0
+    for _ in s:
+        c += 1
+    print(c)
+
 for s in f:
     del s
