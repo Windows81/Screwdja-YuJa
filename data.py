@@ -82,5 +82,23 @@ elif o == "count":
         c += 1
     print(c)
 
+elif o == "fraction":
+    c = mx = 0
+    for r in s:
+        i = int(r["id"])
+        if mx < i:
+            mx = i
+        c += 1
+    print(c / mx)
+
+elif o == "percent":
+    c = mx = 0
+    for r in s:
+        i = int(r["id"])
+        if mx < i:
+            mx = i
+        c += 1
+    print(f"{100 * c / mx}%")
+
 for s in f:
     del s
