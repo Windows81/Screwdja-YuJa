@@ -52,7 +52,7 @@ class file_queue:
     _thread: threading.Thread
 
     def get_index(self, struct: csv_struct) -> str:
-        return f"yuja{int(struct.video_id/1e6)}.csv"
+        return f"yuja{int(struct.video_id/1e6*2)//2:02d}.csv"
 
     def add(self, str: csv_struct) -> None:
         i = self.get_index(str)
