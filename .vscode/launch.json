@@ -8,14 +8,14 @@
 			"name": "Scrape Test",
 			"type": "python",
 			"request": "launch",
-			"program": ".py",
+			"program": "scrape.py",
 			"args": [
 				"-incr",
-				"1",
+				"-1",
 				"-ss",
-				"3755812",
+				"6276126",
 				"-t",
-				"69"
+				"1"
 			],
 			"console": "integratedTerminal"
 		}

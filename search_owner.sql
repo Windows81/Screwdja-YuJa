@@ -1,0 +1,1 @@
+select video_id,title,url from url_view natural join yuja where owner_id in (select owner_id from yuja where video_id=5704156)
