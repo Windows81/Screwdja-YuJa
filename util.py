@@ -47,17 +47,18 @@ class file_list(set[csv_struct]):
         self.stream.flush()
 
 
+def get_index(vid: int) -> str:
+    return f"yuja{int(vid/5e5)*5:02d}.csv"
+
+
 class file_queue:
     stuff: dict[str, file_list]
     _thread: threading.Thread
 
-    def get_index(self, struct: csv_struct) -> str:
-        return f"yuja{int(struct.video_id/1e6*2)//2:02d}.csv"
-
-    def add(self, str: csv_struct) -> None:
-        i = self.get_index(str)
+    def add(self, struct: csv_struct) -> None:
+        i = get_index(struct.video_id)
         if i in self.stuff:
-            self.stuff[i].add(str)
+            self.stuff[i].add(struct)
             return
         self.stuff[i] = file_list(i)
 

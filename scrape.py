@@ -1,10 +1,10 @@
 import threading
+import time
 import requests
 import argparse
 import typing
 import json
 import util
-import sys
 
 
 def get_info(vid_id: int) -> util.csv_struct | None:
@@ -57,51 +57,62 @@ def get_info(vid_id: int) -> util.csv_struct | None:
         return None
 
 
-def process(r: range) -> typing.Generator[util.csv_struct, None, None]:
-    for i, base_id in enumerate(r):
-        limit = getattr(process, 'limit')
-        do_quit = getattr(process, 'quit')
-        if do_quit and i > limit:
-            break
-        if i > limit:
-            setattr(process, 'limit', i)
-        info = get_info(base_id)
-        if info:
-            print(base_id)
-            yield info
+def iterate(ids: list[int], th: int = 1) -> None:
+    attrs = {
+        "quit": False,
+        "limit": 0,
+        "threads": 0,
+    }
 
+    def process(r: typing.Iterable[int]) -> typing.Generator[util.csv_struct, None, None]:
+        for i, base_id in enumerate(r):
+            limit = attrs['limit']
+            do_quit = attrs['quit']
+            if do_quit and i > limit:
+                break
+            if i > limit:
+                attrs['limit'] = i
+            info = get_info(base_id)
+            if info:
+                print(base_id)
+                yield info
 
-def write(queue: util.file_queue, g: typing.Generator[util.csv_struct, None, None]) -> None:
-    for o in g:
-        queue.add(o)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-incr", default=-1, required=False, type=int)
-    parser.add_argument("-ss", type=int)
-    parser.add_argument("-stop", default=-1, required=False, type=int)
-    parser.add_argument("-threads", default=2, required=False, type=int)
-    args = parser.parse_args()
-    incr, ss, stop, th = args.incr, args.ss, args.stop, args.threads
-    setattr(write, "debounce", False)
-    setattr(process, "quit", False)
-    setattr(process, "limit", 0)
+    def write(queue: util.file_queue, g: typing.Generator[util.csv_struct, None, None]) -> None:
+        attrs['threads'] += 1
+        for o in g:
+            queue.add(o)
+        attrs['threads'] -= 1
 
     queue = util.file_queue()
-    if incr > 0 and stop == -1:
-        stop = 88888888
-    ths = tuple(
+    ths = [
         threading.Thread(
             target=write,
             args=[
                 queue,
-                process(range(ss + o * incr, stop, incr * th))
+                process(ids[o:-1:th]),
             ],
         )
         for o in range(0, th)
-    )
+    ]
     for t in ths:
         t.start()
-    input()
-    setattr(process, 'quit', True)
+    try:
+        while attrs['threads']:
+            time.sleep(0)
+    except KeyboardInterrupt:
+        print('Quitting program soon...')
+        attrs['quit'] = True
+        for t in ths:
+            t.join()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-incr", default=1, required=False, type=int)
+    parser.add_argument("-ss", type=int)
+    parser.add_argument("-stop", default=-1, required=False, type=int)
+    parser.add_argument("-threads", default=2, required=False, type=int)
+    args = parser.parse_args()
+    if args.incr > 0 and args.stop < 0:
+        args.stop = 88888888
+    iterate(list(range(args.ss, args.stop, args.incr)), args.threads)
