@@ -23,7 +23,6 @@ def main() -> None:
     annotation_keys = list(annotations.keys())
     create_names = [f'{f} {t}' for f, t in annotations.items()]
     create_table = f'CREATE TABLE IF NOT EXISTS yuja({",".join(create_names)})'
-    cursor.execute('DROP TABLE yuja')
     cursor.execute(create_table)
     cursor.execute('''
     CREATE VIEW IF NOT EXISTS url_view as
