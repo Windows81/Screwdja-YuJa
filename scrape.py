@@ -66,15 +66,16 @@ def iterate(ids: list[int], th: int = 1) -> None:
 
     def process(r: typing.Iterable[int]) -> typing.Generator[util.csv_struct, None, None]:
         for i, base_id in enumerate(r):
-            limit = attrs['limit']
-            do_quit = attrs['quit']
-            if do_quit and i > limit:
-                break
-            if i > limit:
+            if i > attrs['limit']:
+                if attrs['quit']:
+                    break
                 attrs['limit'] = i
             info = get_info(base_id)
             if info:
-                print(base_id)
+                if attrs['quit']:
+                    print(f"{base_id} (iter. {i}/{attrs['limit']})")
+                else:
+                    print(base_id)
                 yield info
 
     def write(queue: util.file_queue, g: typing.Generator[util.csv_struct, None, None]) -> None:
