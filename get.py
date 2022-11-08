@@ -23,7 +23,7 @@ def get_links(vid: int) -> set[str]:
                     m['fileURL']
                     for u in urls
                     for s in requests.get(u).json()['streams']
-                    if not s['isAudioOnly'] and s['hasAudioCodec']
+                    # if not s['isAudioOnly'] and s['hasAudioCodec']
                     for m in s['typeAndVideoSourceMap'].values()
                 )
     return set()
@@ -33,6 +33,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('video_id', type=int)
     args = parser.parse_args()
-    vid = args.video_id  # int(sys.argv[1])
+    vid = args.video_id
     for l in get_links(vid):
         print(l)
