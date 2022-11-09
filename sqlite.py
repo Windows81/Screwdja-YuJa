@@ -1,5 +1,3 @@
-import csv
-import glob
 import util
 import sqlite3
 FILE_NAME = 'yuja.sqlite'
@@ -8,9 +6,8 @@ FILE_NAME = 'yuja.sqlite'
 def main() -> None:
     connection = sqlite3.connect(FILE_NAME)
     cursor = connection.cursor()
-    f = [open(n, "r", encoding="utf-8") for n in glob.glob("yuja*.csv")]
-    g = (str(l) for i, s in enumerate(f) for j, l in enumerate(s) if j > 0 or i == 0)
-    s = csv.DictReader(g, delimiter=",", quotechar='"')
+    f = util.get_streams()
+    s = util.get_reader(f)
 
     annotations = {
         f: {int: "integer", str: "string"}.get(t, '')

@@ -2,13 +2,11 @@ from datetime import datetime
 from matplotlib import pyplot
 from matplotlib import rcParams
 import re
-import csv
 import sys
-import glob
+import util
 
-f = [open(n, "r", encoding="utf-8") for n in glob.glob("yuja*.csv")]
-g = (str(l) for i, s in enumerate(f) for j, l in enumerate(s) if j > 0 or i == 0)
-s = csv.DictReader(g, delimiter=",", quotechar='"')
+f = util.get_streams()
+s = util.get_reader(f)
 
 dates, dates_flt, dates_ids = [], [], []
 o = sys.argv[1] if len(sys.argv) > 1 else input("Enter a program ID: ")

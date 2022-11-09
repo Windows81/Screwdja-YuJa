@@ -2,6 +2,7 @@
 import csv
 from dataclasses import dataclass
 from io import TextIOWrapper
+import os
 import threading
 import typing
 
@@ -49,6 +50,22 @@ class file_list(set[csv_struct]):
 
 def get_index(vid: int) -> str:
     return f"yuja{int(vid/5e5)*5:02d}.csv"
+    return f"csv/{int(vid)//1_0000:04d}.csv"
+
+
+def get_paths() -> set[str]:
+    return set(p for p in set(
+        get_index(i) for i in range(0, int(1e7), 100))
+        if os.path.isfile(p))
+
+
+def get_streams() -> list[TextIOWrapper]:
+    return [open(n, "r", encoding="utf-8") for n in get_paths()]
+
+
+def get_reader(f: list[TextIOWrapper]):
+    g = (str(l) for i, s in enumerate(f) for j, l in enumerate(s) if j > 0 or i == 0)
+    return csv.DictReader(g, delimiter=",", quotechar='"')
 
 
 class file_queue:
@@ -62,13 +79,16 @@ class file_queue:
             return
         self.stuff[i] = file_list(i)
 
+    def _empty(self) -> None:
+        values = list(self.stuff.values())
+        for s in values:
+            for struct in list(s):
+                s.write(struct)
+                s.discard(struct)
+
     def _run_thread(self) -> None:
         while True:
-            values = list(self.stuff.values())
-            for s in values:
-                for struct in list(s):
-                    s.write(struct)
-                    s.remove(struct)
+            self._empty()
 
     def __init__(self) -> None:
         self.stuff = {}

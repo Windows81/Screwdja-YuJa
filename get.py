@@ -1,12 +1,7 @@
 import argparse
 import requests
-import glob
 import csv
 import util
-
-f = [open(n, "r", encoding="utf-8") for n in glob.glob("yuja*.csv")]
-g = (str(l) for i, s in enumerate(f) for j, l in enumerate(s) if j > 0 or i == 0)
-s = csv.DictReader(g, delimiter=",", quotechar='"')
 
 
 def get_links(vid: int) -> set[str]:

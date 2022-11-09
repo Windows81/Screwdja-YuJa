@@ -1,1 +1,1 @@
-findstr.exe $args yuja?.csv | sort.exe
+findstr.exe $args yuja*.csv | sort.exe
