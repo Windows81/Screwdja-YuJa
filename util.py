@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from io import TextIOWrapper
 import os
 import threading
+import time
 import typing
 
 
@@ -48,52 +49,68 @@ class file_list(set[csv_struct]):
         self.stream.flush()
 
 
-def get_index(vid: int) -> str:
-    return f"yuja{int(vid/5e5)*5:02d}.csv"
-    return f"csv/{int(vid)//1_0000:04d}.csv"
+def _default_get_index(vid: int, /) -> str:
+    return f"csv/{int(vid)//10000:04d}.csv"
 
 
-def get_paths() -> set[str]:
-    return set(p for p in set(
-        get_index(i) for i in range(0, int(1e7), 100))
-        if os.path.isfile(p))
+class csv_streams:
+    get_index: typing.Callable[[int], str]
 
+    def get_paths(self) -> set[str]:
+        return set(p for p in set(
+            self.get_index(i) for i in range(0, int(1e7), 100))
+            if os.path.isfile(p))
 
-def get_streams() -> list[TextIOWrapper]:
-    return [open(n, "r", encoding="utf-8") for n in get_paths()]
+    def _gen(self, paths: set[str]) -> typing.Generator[str, None, None]:
+        for i, p in enumerate(paths):
+            with open(p, 'r', encoding='utf-8') as f:
+                for j, l in enumerate(f):
+                    if j > 0 or i == 0:
+                        yield l
 
-
-def get_reader(f: list[TextIOWrapper]):
-    g = (str(l) for i, s in enumerate(f) for j, l in enumerate(s) if j > 0 or i == 0)
-    return csv.DictReader(g, delimiter=",", quotechar='"')
+    def __init__(self, get_index: typing.Callable[[int], str] = _default_get_index) -> None:
+        self.get_index = get_index
+        self.merge_stream = csv.DictReader(
+            self._gen(self.get_paths()),
+            delimiter=",", quotechar='"'
+        )
 
 
 class file_queue:
+    get_index: typing.Callable[[int], str]
     stuff: dict[str, file_list]
     _thread: threading.Thread
 
     def add(self, struct: csv_struct) -> None:
-        i = get_index(struct.video_id)
-        if i in self.stuff:
-            self.stuff[i].add(struct)
-            return
-        self.stuff[i] = file_list(i)
+        i = self.get_index(struct.video_id)
+        self.stuff.setdefault(i, file_list(i)).add(struct)
 
-    def _empty(self) -> None:
+    def _empty(self) -> bool:
         values = list(self.stuff.values())
+        done = False
         for s in values:
+            if s:
+                done = True
             for struct in list(s):
                 s.write(struct)
                 s.discard(struct)
+        return done
 
     def _run_thread(self) -> None:
+        c = 0
         while True:
-            self._empty()
+            if self._empty():
+                c = 0
+            else:
+                c += 1
+                time.sleep(1)
+            if c > 2:
+                return
 
-    def __init__(self) -> None:
+    def __init__(self, get_index: typing.Callable[[int], str] = _default_get_index) -> None:
         self.stuff = {}
+        self.get_index = get_index
         self._thread = threading.Thread(
             target=self._run_thread,
-            daemon=True,
         )
         self._thread.start()

@@ -6,8 +6,7 @@ FILE_NAME = 'yuja.sqlite'
 def main() -> None:
     connection = sqlite3.connect(FILE_NAME)
     cursor = connection.cursor()
-    f = util.get_streams()
-    s = util.get_reader(f)
+    s = util.csv_streams().merge_stream
 
     annotations = {
         f: {int: "integer", str: "string"}.get(t, '')

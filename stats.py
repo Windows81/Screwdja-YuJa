@@ -5,9 +5,7 @@ import re
 import sys
 import util
 
-f = util.get_streams()
-s = util.get_reader(f)
-
+s = util.csv_streams().merge_stream
 dates, dates_flt, dates_ids = [], [], []
 o = sys.argv[1] if len(sys.argv) > 1 else input("Enter a program ID: ")
 rcParams["toolbar"] = "None"

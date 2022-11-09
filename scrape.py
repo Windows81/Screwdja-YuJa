@@ -73,7 +73,7 @@ def iterate(ids: list[int], th: int = 1) -> None:
             info = get_info(base_id)
             if info:
                 if attrs['quit']:
-                    print(f"{base_id} (iter. {i}/{attrs['limit']})")
+                    print(f"{base_id} ({i}/{attrs['limit']} - {attrs['threads']})")
                 else:
                     print(base_id)
                 yield info

@@ -5,7 +5,8 @@ import util
 
 
 def get_links(vid: int) -> set[str]:
-    with open(util.get_index(vid), "r", encoding="utf-8") as f:
+    f = util.csv_streams()
+    with open(f.get_index(vid), "r", encoding="utf-8") as f:
         s = csv.DictReader(f, delimiter=",", quotechar='"')
         for d in s:
             if int(d['video_id']) == vid:
