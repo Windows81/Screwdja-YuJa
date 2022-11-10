@@ -6,7 +6,8 @@ import sys
 import util
 
 s = util.csv_streams().merge_stream
-dates, dates_flt, dates_ids = [], [], []
+dates: list[tuple[int, datetime]] = []
+dates_flt, dates_ids = [], []
 o = sys.argv[1] if len(sys.argv) > 1 else input("Enter a program ID: ")
 rcParams["toolbar"] = "None"
 
@@ -16,7 +17,8 @@ if o == "dateplot":
             m = re.search("GMT(\\d{8}-\\d{6})", r["name"])
             if m:
                 d = datetime.strptime(m.groups()[0], "%Y%m%d-%H%M%S")
-                dates.append(tuple((int(r['video_id']), d)))
+                t = ((int(r['video_id']), d))
+                dates.append(t)
         except Exception:
             pass
 
@@ -99,6 +101,3 @@ elif o == "percent":
             mx = i
         c += 1
     print(f"{100 * c / (mx-mn)}%")
-
-for s in f:
-    del s

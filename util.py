@@ -76,10 +76,11 @@ class csv_streams:
         )
 
 
-class file_queue:
+class file_queue(threading.Thread):
     get_index: typing.Callable[[int], str]
     stuff: dict[str, file_list]
     _thread: threading.Thread
+    _join: bool
 
     def add(self, struct: csv_struct) -> None:
         i = self.get_index(struct.video_id)
@@ -97,20 +98,19 @@ class file_queue:
         return done
 
     def _run_thread(self) -> None:
-        c = 0
-        while True:
-            if self._empty():
-                c = 0
-            else:
-                c += 1
-                time.sleep(1)
-            if c > 2:
-                return
+        while self._join:
+            self._empty()
 
     def __init__(self, get_index: typing.Callable[[int], str] = _default_get_index) -> None:
         self.stuff = {}
+        self._join = True
         self.get_index = get_index
-        self._thread = threading.Thread(
+        super().__init__(
             target=self._run_thread,
+            daemon=True,
         )
-        self._thread.start()
+        self.start()
+
+    def join(self) -> None:
+        self._join = False
+        return super().join()
