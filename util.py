@@ -111,6 +111,6 @@ class file_queue(threading.Thread):
         )
         self.start()
 
-    def join(self) -> None:
+    def wait(self) -> None:
         self._join = False
         return super().join()
