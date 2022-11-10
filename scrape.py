@@ -105,6 +105,7 @@ def iterate(ids: list[int], th: int = 1) -> None:
         attrs['quit'] = True
         for t in ths:
             t.join()
+    queue.join()
 
 
 if __name__ == "__main__":
