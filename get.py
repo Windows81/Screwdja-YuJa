@@ -31,7 +31,13 @@ def get_links(vid: int) -> set[str]:
             for m in s['typeAndVideoSourceMap'].values()
         )
         result.update(j['captionURL'].values())
-    return result
+
+    return set(
+        f"https://my.yuja.com{r}"
+        if r.startswith('/')
+        else r
+        for r in result
+    )
 
 
 if __name__ == '__main__':
